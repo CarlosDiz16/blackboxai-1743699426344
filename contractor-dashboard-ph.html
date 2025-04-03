@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BuildConnect PH | Contractor Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .payment-method {
+            transition: all 0.2s ease;
+        }
+        .payment-method:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <!-- Payment Modal -->
+    <div id="paymentModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden">
+            <div class="p-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">Promote Your Job Listing</h3>
+                <p class="text-gray-600 mb-6">Get 3x more applicants by featuring your job for 7 days</p>
+                
+                <div class="space-y-3 mb-6">
+                    <button onclick="processPayment('gcash')" 
+                            class="payment-method w-full bg-green-600 text-white p-4 rounded-lg flex items-center justify-between">
+                        <div class="flex items-center">
+                            <i class="fab fa-google-pay text-2xl mr-3"></i>
+                            <span>GCash</span>
+                        </div>
+                        <span>₱2,450</span>
+                    </button>
+                    
+                    <button onclick="processPayment('maya')" 
+                            class="payment-method w-full bg-purple-600 text-white p-4 rounded-lg flex items-center justify-between">
+                        <div class="flex items-center">
+                            <i class="fas fa-wallet text-2xl mr-3"></i>
+                            <span>Maya</span>
+                        </div>
+                        <span>₱2,450</span>
+                    </button>
+                    
+                    <button onclick="processPayment('card')" 
+                            class="payment-method w-full bg-blue-600 text-white p-4 rounded-lg flex items-center justify-between">
+                        <div class="flex items-center">
+                            <i class="far fa-credit-card text-2xl mr-3"></i>
+                            <span>Credit/Debit Card</span>
+                        </div>
+                        <span>₱2,450</span>
+                    </button>
+                </div>
+                
+                <button onclick="hidePaymentModal()" 
+                        class="w-full bg-gray-200 text-gray-800 py-2 rounded-lg hover:bg-gray-300 transition-colors">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Payment handling
+        let currentJobId = null;
+        
+        function showPHPaymentOptions(jobId) {
+            currentJobId = jobId;
+            document.getElementById('paymentModal').classList.remove('hidden');
+        }
+        
+        function hidePaymentModal() {
+            document.getElementById('paymentModal').classList.add('hidden');
+        }
+        
+        async function processPayment(method) {
+            try {
+                // Show processing indicator
+                const buttons = document.querySelectorAll('.payment-method');
+                buttons.forEach(btn => btn.disabled = true);
+                
+                const response = await fetch('/api/payments/create-intent', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        paymentMethod: method,
+                        jobId: currentJobId,
+                        amount: 2450,
+                        currency: 'PHP'
+                    })
+                });
+                
+                const paymentDetails = await response.json();
+                
+                if (method === 'gcash' || method === 'maya') {
+                    alert(`Payment Instructions:\n\n${paymentDetails.instructions}\n\nReference: ${paymentDetails.reference}\n\nAmount: ₱2,450`);
+                }
+                
+                // Complete promotion
+                const promoteResponse = await fetch(`/api/jobs/promote/${currentJobId}`);
+                if (promoteResponse.ok) {
+                    alert('🎉 Job successfully promoted! It will be featured for 7 days.');
+                    window.location.reload();
+                }
+                
+            } catch (error) {
+                console.error('Payment error:', error);
+                alert('Payment failed. Please try again or contact support.');
+            } finally {
+                buttons.forEach(btn => btn.disabled = false);
+                hidePaymentModal();
+            }
+        }
+    </script>
+</body>
+</html>
