@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BuildConnect | Worker Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .job-card {
+            transition: all 0.3s ease;
+        }
+        .job-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <nav class="bg-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i class="fas fa-hard-hat text-blue-500 text-2xl mr-2"></i>
+                        <span class="text-xl font-bold text-gray-800">BuildConnect</span>
+                    </div>
+                    <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                        <a href="worker-dashboard.html" class="border-blue-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Dashboard
+                        </a>
+                        <a href="job-listings.html" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Find Jobs
+                        </a>
+                        <a href="chat.html" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Messages
+                        </a>
+                    </div>
+                </div>
+                <div class="hidden sm:ml-6 sm:flex sm:items-center">
+                    <div class="ml-3 relative">
+                        <div>
+                            <button type="button" class="bg-white rounded-full flex text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" id="user-menu-button">
+                                <span class="sr-only">Open user menu</span>
+                                <div class="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
+                                    <i class="fas fa-user text-blue-500"></i>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="mb-8">
+            <h2 id="welcomeMessage" class="text-2xl font-bold text-gray-800"></h2>
+            <p class="text-gray-600">Browse available job opportunities</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="jobsContainer">
+            <!-- Jobs will be loaded here dynamically -->
+            <div class="text-center py-12">
+                <i class="fas fa-spinner fa-spin text-blue-500 text-2xl"></i>
+                <p class="mt-2 text-gray-600">Loading jobs...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            const userData = JSON.parse(localStorage.getItem('userData'));
+            document.getElementById('welcomeMessage').textContent = `Welcome, ${userData.name}`;
+            
+            try {
+                // Fetch jobs from API
+                const response = await fetch('http://localhost:3000/api/jobs');
+                const jobs = await response.json();
+                
+                if (!Array.isArray(jobs)) {
+                    throw new Error('Invalid jobs data');
+                }
+
+                const jobsContainer = document.getElementById('jobsContainer');
+                jobsContainer.innerHTML = '';
+                
+                // Populate jobs
+                jobs.forEach(job => {
+                    const jobCard = document.createElement('div');
+                    jobCard.className = 'job-card bg-white p-6 rounded-lg shadow-md';
+                    jobCard.innerHTML = `
+                        <h3 class="text-xl font-bold text-gray-800">${job.title || 'No title'}</h3>
+                        <p class="text-gray-600 mt-2">${job.description || 'No description'}</p>
+                        <div class="mt-4 grid grid-cols-2 gap-4">
+                            <div>
+                                <span class="text-gray-500">Location:</span>
+                                <span class="font-medium">${job.location || 'N/A'}</span>
+                            </div>
+                            <div>
+                                <span class="text-gray-500">Pay:</span>
+                                <span class="font-medium">${job.pay || 'N/A'}</span>
+                            </div>
+                            <div>
+                                <span class="text-gray-500">Duration:</span>
+                                <span class="font-medium">${job.duration || 'N/A'}</span>
+                            </div>
+                            <div>
+                                <span class="text-gray-500">Posted:</span>
+                                <span class="font-medium">${job.posted || 'N/A'}</span>
+                            </div>
+                        </div>
+                        ${job.isFeatured ? `
+                        <div class="mt-2 flex items-center text-yellow-500">
+                            <i class="fas fa-crown mr-1"></i>
+                            <span class="text-sm font-medium">Featured Job</span>
+                        </div>
+                        ` : ''}
+                        <button class="mt-4 w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
+                            Apply Now
+                        </button>
+                        ${job.isFeatured ? `
+                        <div class="mt-2 text-xs text-gray-500">
+                            <i class="fas fa-eye mr-1"></i>
+                            Featured until ${new Date(job.featuredUntil).toLocaleDateString()}
+                        </div>
+                        ` : ''}
+                    `;
+                    jobsContainer.appendChild(jobCard);
+                });
+
+            } catch (error) {
+                console.error('Error fetching jobs:', error);
+                document.getElementById('jobsContainer').innerHTML = `
+                    <div class="text-center py-8 text-red-500 col-span-full">
+                        <i class="fas fa-exclamation-circle text-2xl"></i>
+                        <p class="mt-2">Failed to load jobs. Please try again later.</p>
+                        <button onclick="window.location.reload()" class="mt-4 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
+                            Retry
+                        </button>
+                    </div>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>
