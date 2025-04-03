@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BuildConnect | Messages</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .messages-container {
+            height: calc(100% - 120px);
+            overflow-y: auto;
+        }
+        .conversation-list {
+            height: calc(100% - 60px);
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i class="fas fa-comments text-blue-500 text-2xl mr-2"></i>
+                        <span class="text-xl font-bold text-gray-800">BuildConnect</span>
+                    </div>
+                    <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                        <a href="worker-dashboard.html" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Dashboard
+                        </a>
+                        <a href="job-listings.html" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Find Jobs
+                        </a>
+                        <a href="#" class="border-blue-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Messages
+                        </a>
+                    </div>
+                </div>
+                <div class="hidden sm:ml-6 sm:flex sm:items-center">
+                    <div class="ml-3 relative">
+                        <div>
+                            <button type="button" class="bg-white rounded-full flex text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" id="user-menu-button">
+                                <span class="sr-only">Open user menu</span>
+                                <div class="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
+                                    <i class="fas fa-user text-blue-500"></i>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div class="bg-white shadow rounded-lg overflow-hidden">
+            <div class="flex h-[500px]">
+                <!-- Conversation List -->
+                <div class="w-1/3 border-r border-gray-200 bg-gray-50">
+                    <div class="p-4 border-b border-gray-200">
+                        <h3 class="text-lg font-medium text-gray-900">Messages</h3>
+                    </div>
+                    <div class="conversation-list">
+                        <!-- Conversation 1 -->
+                        <div class="conversation-item border-b border-gray-200 hover:bg-gray-100 cursor-pointer" data-convo-id="abc-construction">
+                            <div class="flex items-center p-4">
+                                <div class="flex-shrink-0">
+                                    <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                                        <i class="fas fa-building text-blue-500"></i>
+                                    </div>
+                                </div>
+                                <div class="ml-3">
+                                    <h4 class="text-sm font-medium text-gray-900">ABC Construction</h4>
+                                    <p class="text-sm text-gray-500 truncate">Looking forward to working with you</p>
+                                </div>
+                                <div class="ml-auto text-xs text-gray-500">2h ago</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Conversation 2 -->
+                        <div class="conversation-item border-b border-gray-200 bg-blue-50 hover:bg-blue-100 cursor-pointer" data-convo-id="john-smith">
+                            <div class="flex items-center p-4">
+                                <div class="flex-shrink-0">
+                                    <div class="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
+                                        <i class="fas fa-hard-hat text-green-500"></i>
+                                    </div>
+                                </div>
+                                <div class="ml-3">
+                                    <h4 class="text-sm font-medium text-gray-900">John Smith</h4>
+                                    <p class="text-sm text-gray-500 truncate">I can start on Monday</p>
+                                </div>
+                                <div class="ml-auto text-xs text-gray-500">1d ago</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Chat Area -->
+                <div class="w-2/3 flex flex-col">
+                    <!-- Chat Header -->
+                    <div class="p-4 border-b border-gray-200 flex items-center chat-header">
+                        <div class="flex-shrink-0">
+                            <div class="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
+                                <i class="fas fa-hard-hat text-green-500"></i>
+                            </div>
+                        </div>
+                        <div class="ml-3">
+                            <h4 class="text-lg font-medium text-gray-900">John Smith</h4>
+                            <p class="text-sm text-gray-500">Electrician</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Messages -->
+                    <div class="messages-container p-4 bg-gray-50">
+                        <!-- Messages will be loaded here -->
+                    </div>
+                    
+                    <!-- Message Input -->
+                    <div class="p-4 border-t border-gray-200">
+                        <form class="flex items-center">
+                            <input type="text" placeholder="Type your message..." 
+                                class="flex-1 mx-2 px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <button type="submit" class="p-2 rounded-full text-blue-500 hover:text-blue-600 hover:bg-blue-50">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        let socket;
+        let currentUserId;
+        let currentConversationId;
+        let isTyping = false;
+        let typingTimeout;
+
+        // Format time as "2h ago"
+        function formatTime(date) {
+            const seconds = Math.floor((new Date() - date) / 1000);
+            if (seconds < 60) return 'just now';
+            
+            const minutes = Math.floor(seconds / 60);
+            if (minutes < 60) return `${minutes}m ago`;
+            
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) return `${hours}h ago`;
+            
+            const days = Math.floor(hours / 24);
+            return `${days}d ago`;
+        }
+
+        // Add message to UI
+        function addMessageToUI(message) {
+            const messagesContainer = document.querySelector('.messages-container');
+            const isMe = message.senderId === currentUserId;
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `flex mb-4 ${isMe ? 'justify-end' : ''}`;
+            messageDiv.innerHTML = `
+                <div class="flex-shrink-0 mr-3">
+                    <div class="h-8 w-8 rounded-full ${isMe ? 'bg-blue-100' : 'bg-green-100'} flex items-center justify-center">
+                        <i class="fas ${isMe ? 'fa-user text-blue-500' : 'fa-hard-hat text-green-500'} text-sm"></i>
+                    </div>
+                </div>
+                <div>
+                    <div class="${isMe ? 'bg-blue-100' : 'bg-white'} p-3 rounded-lg shadow-sm max-w-xs">
+                        <p class="text-sm text-gray-800">${message.text}</p>
+                    </div>
+                    <div class="text-xs text-gray-500 mt-1 ${isMe ? 'text-right' : ''}">${formatTime(new Date(message.timestamp))}</div>
+                </div>
+            `;
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // Handle typing indicator
+        function handleTyping() {
+            if (!isTyping) {
+                isTyping = true;
+                socket.emit('typing', {
+                    senderId: currentUserId,
+                    receiverId: currentConversationId
+                });
+            }
+            
+            clearTimeout(typingTimeout);
+            typingTimeout = setTimeout(() => {
+                isTyping = false;
+                socket.emit('stopTyping', {
+                    senderId: currentUserId,
+                    receiverId: currentConversationId
+                });
+            }, 2000);
+        }
+
+        // Initialize messaging
+        document.addEventListener('DOMContentLoaded', function() {
+            const userData = JSON.parse(localStorage.getItem('userData'));
+            if (!userData) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            currentUserId = userData.id;
+            socket = io();
+            
+            // Join user's room
+            socket.emit('join', currentUserId);
+            
+            // Handle new messages
+            socket.on('newMessage', (message) => {
+                if (message.senderId === currentConversationId || message.receiverId === currentConversationId) {
+                    addMessageToUI(message);
+                }
+            });
+            
+            // Handle typing indicators
+            socket.on('typing', ({senderId}) => {
+                if (senderId === currentConversationId) {
+                    // Show typing indicator in UI
+                    document.getElementById('typingIndicator').classList.remove('hidden');
+                }
+            });
+            
+            socket.on('stopTyping', ({senderId}) => {
+                if (senderId === currentConversationId) {
+                    // Hide typing indicator in UI
+                    document.getElementById('typingIndicator').classList.add('hidden');
+                }
+            });
+            
+            // Message form submission
+            document.querySelector('form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const input = this.querySelector('input');
+                const text = input.value.trim();
+                
+                if (text && currentConversationId) {
+                    socket.emit('sendMessage', {
+                        senderId: currentUserId,
+                        receiverId: currentConversationId,
+                        text
+                    });
+                    input.value = '';
+                }
+            });
+            
+            // Typing detection
+            document.querySelector('input').addEventListener('input', handleTyping);
+            
+            // Add click handlers to conversation items
+            document.querySelectorAll('.conversation-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    currentConversationId = this.getAttribute('data-convo-id');
+                    // In a real app, this would fetch conversation history from API
+                });
+            });
+        });
+    </script>
+</body>
+</html>
