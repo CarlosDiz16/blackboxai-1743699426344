@@ -10,7 +10,7 @@
     "seed": "sequelize-cli db:seed:all",
     "test": "NODE_ENV=test jest",
     "lint": "eslint .",
-    "prestart": "npm run migrate"
+    "prestart": "echo 'Skipping migrations temporarily'"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
