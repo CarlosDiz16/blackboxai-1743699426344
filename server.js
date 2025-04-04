@@ -11,15 +11,47 @@ const auth = require('./middleware/auth');
 const jwt = require('jsonwebtoken');
 const { Sequelize } = require('sequelize');
 
+const config = require('./config');
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = config.port;
+
+// Trust first proxy
+app.set('trust proxy', 1);
+
+// Security Middleware
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+const xss = require('xss');
+const csrf = require('csrf');
+
+app.use(helmet());
+// XSS Protection
+app.use((req, res, next) => {
+  if (req.body) {
+    for (const key in req.body) {
+      if (typeof req.body[key] === 'string') {
+        req.body[key] = xss(req.body[key]);
+      }
+    }
+  }
+  next();
+});
+
+// CSRF Protection
+const tokens = new csrf();
+app.use((req, res, next) => {
+  res.locals.csrfToken = tokens.create(process.env.CSRF_SECRET || 'default-secret');
+  next();
+});
+app.use(rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: 'Too many requests from this IP, please try again later',
+  validate: { trustProxy: true }
+}));
 
 // SQLite Configuration
-const sequelize = new Sequelize({
-  dialect: 'sqlite',
-  storage: 'database.sqlite',
-  logging: console.log
-});
+const sequelize = new Sequelize(config.database.url, config.database.options);
 
 console.log('Using SQLite database at:', path.resolve('database.sqlite'));
 
@@ -29,7 +61,10 @@ sequelize.authenticate()
   .catch(err => console.error('Database connection error:', err));
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: config.cors.origin,
+  methods: config.cors.methods
+}));
 app.use(bodyParser.json());
 
 // Social Auth Routes
@@ -43,8 +78,8 @@ app.get('/auth/google/callback',
     session: false 
   }),
   (req, res) => {
-    const token = jwt.sign({ id: req.user.id }, process.env.JWT_SECRET);
-    res.redirect(`http://localhost:3000/dashboard?token=${token}`);
+    const token = jwt.sign({ id: req.user.id }, config.jwtSecret);
+    res.redirect(`${config.oauth.google.callbackURL.split('/callback')[0]}/dashboard?token=${token}`);
   });
 
 // Facebook OAuth  
@@ -57,8 +92,8 @@ app.get('/auth/facebook/callback',
     session: false
   }),
   (req, res) => {
-    const token = jwt.sign({ id: req.user.id }, process.env.JWT_SECRET);
-    res.redirect(`http://localhost:3000/dashboard?token=${token}`);
+    const token = jwt.sign({ id: req.user.id }, config.jwtSecret);
+    res.redirect(`${config.oauth.facebook.callbackURL.split('/callback')[0]}/dashboard?token=${token}`);
   });
 
 // Job endpoints
